@@ -1,6 +1,6 @@
 services:
   - type: web
-    name: aamir-portfolio
+    name: aamirhussain
     runtime: python
     plan: free
     buildCommand: pip install -r requirements.txt

@@ -34,7 +34,7 @@ For a hosted site, configure a strong `PORTFOLIO_ADMIN_PASSWORD` environment var
 
 ## Free public hosting (Render)
 
-The repository includes `render.yaml` for a free Render web service. Render's free service can spin down when idle and its filesystem is temporary, so the hosted configuration disables resume uploads and the Windows-only Naukri updater. Visitors can still download the original resume included in `static/resume/`. Continue to use the local Windows launcher for resume uploads and Naukri automation.
+The repository includes `render.yaml` for the `aamirhussain.onrender.com` free Render web service. Render's free service can spin down when idle and its filesystem is temporary, so the hosted configuration disables resume uploads and the Windows-only Naukri updater. Visitors can still download the original resume included in `static/resume/`. Continue to use the local Windows launcher for resume uploads and Naukri automation.
 
 To publish:
 

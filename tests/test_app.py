@@ -64,7 +64,8 @@ class PortfolioPageTests(unittest.TestCase):
         self.assertIn(">LinkedIn", page)
         self.assertNotIn("wordmark-mark", page)
         self.assertNotIn("profile-photo", page)
-        self.assertIn("hello.py", page)
+        self.assertNotIn("hero-art", page)
+        self.assertNotIn("hello.py", page)
 
     def test_static_assets_are_available(self):
         for asset in (
