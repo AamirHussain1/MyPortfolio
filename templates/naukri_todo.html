@@ -1,0 +1,53 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Manage Naukri Resume Updater | Aamir Hussain</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="wordmark" href="{{ url_for('home') }}"><span>Aamir Hussain</span></a>
+      <a class="nav-contact" href="{{ url_for('todos') }}">Back to Naukri Resume Updater <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+  <main class="upload-page container" id="main">
+    <section class="upload-card" aria-labelledby="manage-title">
+      <p class="eyebrow"><span class="section-index">NAUKRI</span> Owner tools</p>
+      <h1 id="manage-title">Manage Naukri <span class="text-gradient">updates.</span></h1>
+      <p class="upload-intro">This runs the existing updater in portfolio mode for Aamir's profile only. It uses the current portfolio PDF and does not put Naukri credentials into the website.</p>
+      {% if request.args.get("started") == "1" %}
+      <p class="upload-message upload-message-success" role="status">The portfolio-managed update has started.</p>
+      {% endif %}
+      {% if message %}
+      <p class="upload-message upload-message-{{ message_type }}" role="status">{{ message }}</p>
+      {% endif %}
+      <div class="todo-status-panel">
+        <span class="status-dot"></span>
+        <div>
+          <strong>{{ status.message }}</strong>
+          {% if status.finished_at %}<p>Last finished: {{ status.finished_at }}</p>{% endif %}
+        </div>
+      </div>
+      <form class="upload-form" method="post">
+        <label for="admin-password">Admin password</label>
+        <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+        <div class="todo-management-actions">
+          <button class="button button-primary" type="submit" name="action" value="run">Run update now <span aria-hidden="true">↗</span></button>
+          {% if schedule_enabled %}
+          <button class="button button-quiet" type="submit" name="action" value="unschedule">Disable daily schedule</button>
+          {% else %}
+          <button class="button button-quiet" type="submit" name="action" value="schedule">Enable daily 8:15–8:30 AM schedule</button>
+          {% endif %}
+        </div>
+      </form>
+      <p class="upload-help">The scheduled task runs as your signed-in Windows user between 8:15 and 8:30 AM local time. Keep the computer awake and signed in. The app must have been started at least once to create the owner password. Check the result on Naukri after each run.</p>
+      <a class="text-link" href="{{ profile_url }}" target="_blank" rel="noopener noreferrer">Open your Naukri profile <span aria-hidden="true">↗</span></a>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,39 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Update resume | Aamir Hussain</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="wordmark" href="{{ url_for('home') }}">
+        <span>Aamir Hussain</span>
+      </a>
+      <a class="nav-contact" href="{{ url_for('home') }}">Back to portfolio <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+  <main class="upload-page container" id="main">
+    <section class="upload-card" aria-labelledby="upload-title">
+      <p class="eyebrow"><span class="section-index">RESUME</span> Owner tools</p>
+      <h1 id="upload-title">Update your <span class="text-gradient">resume.</span></h1>
+      <p class="upload-intro">Upload a PDF to replace the version visitors download from your portfolio. Maximum file size: 10 MB.</p>
+      {% if message %}
+      <p class="upload-message upload-message-{{ message_type }}" role="status">{{ message }}</p>
+      {% endif %}
+      <form class="upload-form" method="post" enctype="multipart/form-data">
+        <label for="resume-file">Updated resume (PDF)</label>
+        <input id="resume-file" name="resume" type="file" accept=".pdf,application/pdf" required>
+        <label for="admin-password">Admin password</label>
+        <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+        <button class="button button-primary" type="submit">Upload updated resume <span aria-hidden="true">↑</span></button>
+      </form>
+      <p class="upload-help">Your password is stored in <code>instance/resume_admin_password.txt</code> on your computer. For a hosted site, set the <code>PORTFOLIO_ADMIN_PASSWORD</code> environment variable to a strong, private password.</p>
+    </section>
+  </main>
+</body>
+</html>

@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: aamir-portfolio
+    runtime: python
+    plan: free
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn --bind 0.0.0.0:$PORT --workers 1 --threads 4 --timeout 120 app:app
+    envVars:
+      - key: PORTFOLIO_ENABLE_RESUME_UPLOADS
+        value: "false"
+      - key: PORTFOLIO_ENABLE_NAUKRI_AUTOMATION
+        value: "false"

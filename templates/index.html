@@ -1,0 +1,330 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <meta name="description" content="{{ profile.name }} — {{ profile.role }} with Python automation experience in silicon validation.">
+  <title>{{ profile.name }} | {{ profile.role }}</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  <script src="{{ url_for('static', filename='js/main.js') }}" defer></script>
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="wordmark" href="#home" aria-label="{{ profile.name }}, home">
+        <span>{{ profile.name }}</span>
+      </a>
+      <button class="menu-toggle" type="button" aria-expanded="false" aria-controls="nav-links">
+        <span class="sr-only">Toggle navigation</span>
+        <span></span><span></span>
+      </button>
+      <div class="nav-links" id="nav-links">
+        <a href="#about">About</a>
+        <a href="#skills">Skills</a>
+        <a href="#experience">Experience</a>
+        <a href="#work">Projects</a>
+        <a href="#lab">Lab</a>
+        <a href="{{ url_for('download_resume') }}">Resume</a>
+        <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
+        {% if naukri_enabled %}<a href="{{ url_for('todos') }}">Naukri Resume Updater</a>{% endif %}
+        <a class="nav-contact" href="#contact">Let's talk <span aria-hidden="true">↗</span></a>
+      </div>
+    </nav>
+  </header>
+
+  <main id="main">
+    <section class="hero container" id="home" aria-labelledby="hero-title">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="status-dot"></span> Silicon validation · Python automation</p>
+        <h1 id="hero-title">Validating silicon.<br><span class="text-gradient">Automating with Python.</span></h1>
+        <p class="hero-intro">{{ profile.intro }}</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="#work">Explore my work <span aria-hidden="true">↓</span></a>
+          <a class="button button-quiet" href="mailto:{{ profile.email }}">Get in touch <span aria-hidden="true">↗</span></a>
+          <a class="button button-quiet" href="{{ url_for('download_resume') }}">Download resume <span aria-hidden="true">↓</span></a>
+        </div>
+        <div class="hero-meta">
+          <span class="meta-line"></span>
+          <span>{{ profile.role }}</span>
+          <span class="meta-separator" aria-hidden="true">/</span>
+          <span>{{ profile.location }}</span>
+        </div>
+      </div>
+      <div class="hero-art">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="orbit orbit-three"></div>
+        <div class="code-card">
+          <div class="code-card-top"><span></span><span></span><span></span><b>hello.py</b></div>
+          <div class="code-lines">
+            <p><span class="code-muted">01</span> <span class="code-purple">class</span> <span class="code-blue">Developer</span>:</p>
+            <p><span class="code-muted">02</span> &nbsp;&nbsp;<span class="code-purple">def</span> <span class="code-yellow">build</span>(self):</p>
+            <p><span class="code-muted">03</span> &nbsp;&nbsp;&nbsp;&nbsp;<span class="code-purple">return</span> <span class="code-green">"something useful"</span></p>
+            <p><span class="code-muted">04</span></p>
+            <p><span class="code-muted">05</span> <span class="code-comment"># ideas into impact</span></p>
+          </div>
+          <div class="code-card-footer"><span class="python-mark">Py</span><span>Made with curiosity</span><span class="footer-sparkle" aria-hidden="true">✳</span></div>
+        </div>
+        <span class="float-chip chip-python"><span class="chip-icon">Py</span> Python</span>
+        <span class="float-chip chip-flask"><span class="chip-icon flask-icon">◈</span> Flask</span>
+        <span class="hero-sparkle sparkle-one" aria-hidden="true">✳</span>
+        <span class="hero-sparkle sparkle-two" aria-hidden="true">✦</span>
+      </div>
+      <a class="scroll-cue" href="#about"><span></span> Scroll to explore</a>
+    </section>
+
+    <section class="impact-strip" aria-label="Career highlights">
+      <div class="container impact-grid">
+        {% for stat in impact_stats %}
+        <article class="impact-item">
+          <p class="impact-value">{{ stat.value }}</p>
+          <p class="impact-label">{{ stat.label }}</p>
+        </article>
+        {% endfor %}
+      </div>
+    </section>
+
+    <section class="section section-about" id="about" aria-labelledby="about-title">
+      <div class="container about-grid">
+        <div class="section-heading">
+            <p class="eyebrow"><span class="section-index">01</span> A little about me</p>
+            <h2 id="about-title">Silicon systems.<br><span class="text-muted">Smarter automation.</span></h2>
+        </div>
+        <div class="about-copy">
+          <p>{{ profile.about }}</p>
+          <p class="about-note"><span aria-hidden="true">✳</span> 4 years across server validation, accelerator platforms, and firmware automation.</p>
+          <a class="text-link" href="#experience">Explore my experience <span aria-hidden="true">↘</span></a>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-skills" id="skills" aria-labelledby="skills-title">
+      <div class="container">
+        <div class="section-heading section-heading-row">
+          <div>
+                <p class="eyebrow"><span class="section-index">02</span> Tools of the trade</p>
+            <h2 id="skills-title">My <span class="text-gradient">toolkit.</span></h2>
+          </div>
+          <p class="section-aside">Automation, interfaces, memory, and debug tools used across silicon and server platforms.</p>
+        </div>
+        <div class="skills-grid">
+          {% for skill in skills %}
+          <article class="skill-card">
+            <span class="skill-symbol" aria-hidden="true">{{ skill.mark }}</span>
+            <div><h3>{{ skill.name }}</h3><p>{{ skill.group }}</p></div>
+            <span class="skill-arrow" aria-hidden="true">↗</span>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-experience" id="experience" aria-labelledby="experience-title">
+      <div class="container">
+        <div class="section-heading section-heading-row">
+          <div>
+            <p class="eyebrow"><span class="section-index">04</span> Where I've made an impact</p>
+            <h2 id="experience-title">Professional <span class="text-gradient">experience.</span></h2>
+          </div>
+          <p class="section-aside">Building and validating complex platforms with teams at UST Global.</p>
+        </div>
+        {% for job in experience %}
+        <article class="experience-card">
+          <div class="experience-heading">
+            <div>
+              <h3>{{ job.role }}</h3>
+              <p>{{ job.company }} <span aria-hidden="true">·</span> {{ job.location }}</p>
+            </div>
+            <span class="experience-dates">{{ job.dates }}</span>
+          </div>
+          <ul class="experience-highlights">
+            {% for highlight in job.highlights %}
+            <li>{{ highlight }}</li>
+            {% endfor %}
+          </ul>
+        </article>
+        {% endfor %}
+        <div class="education-card">
+          <span class="education-mark" aria-hidden="true">B.Tech</span>
+          <div>
+            <p class="eyebrow">Education</p>
+            <h3>{{ education.degree }}</h3>
+            <p>{{ education.institution }} <span aria-hidden="true">·</span> {{ education.year }}</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-validation" id="validation" aria-labelledby="validation-title">
+      <div class="container">
+        <div class="section-heading section-heading-row">
+          <div>
+            <p class="eyebrow"><span class="section-index">03</span> Validation coverage</p>
+            <h2 id="validation-title">From interface to <span class="text-gradient">full system.</span></h2>
+          </div>
+          <p class="section-aside">Hands-on validation across the layers that make complex server and accelerator platforms work.</p>
+        </div>
+        <div class="validation-grid">
+          {% for area in validation_areas %}
+          <article class="validation-card">
+            <div class="validation-card-top"><span class="validation-mark">{{ area.mark }}</span><span class="validation-number">{{ area.number }}</span></div>
+            <h3>{{ area.title }}</h3>
+            <p>{{ area.details }}</p>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-work" id="work" aria-labelledby="work-title">
+      <div class="container">
+        <div class="section-heading section-heading-row">
+          <div>
+            <p class="eyebrow"><span class="section-index">05</span> Selected platform work</p>
+            <h2 id="work-title">Platforms I've <span class="text-gradient">validated.</span></h2>
+          </div>
+          <p class="section-aside">Validation and automation across next-generation AI accelerators and Intel Xeon servers.</p>
+        </div>
+        <div class="projects-grid">
+          {% for project in projects %}
+          <article class="project-card{% if loop.first %} project-featured{% endif %}">
+            <div class="project-topline"><span class="project-number">{{ project.number }}</span><span class="project-label">{{ project.label }}</span></div>
+            <div class="project-visual project-visual-{{ loop.index }}" aria-hidden="true">
+              {% if loop.first %}
+              <div class="mini-window"><div class="mini-window-bar"><i></i><i></i><i></i></div><div class="mini-window-content"><span></span><span></span><span></span><b>build<span>()</span></b></div></div>
+              {% elif loop.index == 2 %}
+              <div class="project-shape shape-api"><span>API</span><i></i><i></i><i></i></div>
+              {% else %}
+              <div class="project-shape shape-data"><span>01</span><span>10</span><span>11</span><span>01</span></div>
+              {% endif %}
+            </div>
+            <h3>{{ project.title }}</h3>
+            <p class="project-description">{{ project.description }}</p>
+            <div class="tag-list">{% for tag in project.tags %}<span>{{ tag }}</span>{% endfor %}</div>
+          </article>
+          {% endfor %}
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-lifecycle" id="lifecycle" aria-labelledby="lifecycle-title">
+      <div class="container">
+        <div class="section-heading section-heading-row">
+          <div>
+            <p class="eyebrow"><span class="section-index">06</span> From specification to stable platform</p>
+            <h2 id="lifecycle-title">Validation <span class="text-gradient">lifecycle.</span></h2>
+          </div>
+          <p class="section-aside">A practical flow from requirements and test design through automation, bring-up, and post-silicon validation.</p>
+        </div>
+        <ol class="lifecycle-track">
+          <li class="lifecycle-step"><span>01</span><h3>Requirements</h3><p>Understand platform requirements and expected behavior.</p></li>
+          <li class="lifecycle-step"><span>02</span><h3>Test design</h3><p>Build focused coverage for interfaces, memory, and firmware.</p></li>
+          <li class="lifecycle-step"><span>03</span><h3>Automation</h3><p>Turn repeatable checks into Python and Robot Framework tests.</p></li>
+          <li class="lifecycle-step"><span>04</span><h3>Pre-silicon</h3><p>Exercise scenarios early and refine regression coverage.</p></li>
+          <li class="lifecycle-step"><span>05</span><h3>Bring-up</h3><p>Check hardware, firmware, and platform behavior on systems.</p></li>
+          <li class="lifecycle-step"><span>06</span><h3>Post-silicon</h3><p>Validate real platform configurations and investigate failures.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    <section class="section section-lab" id="lab" aria-labelledby="lab-title">
+      <div class="container">
+        <div class="section-heading section-heading-row">
+          <div>
+            <p class="eyebrow"><span class="section-index">07</span> Explore the validation domains</p>
+            <h2 id="lab-title">Validation <span class="text-gradient">lab.</span></h2>
+          </div>
+          <p class="section-aside">Open a topic to see the platform areas and validation work represented in my experience.</p>
+        </div>
+        <div class="lab-grid">
+          <details class="lab-explorer">
+            <summary><span class="lab-mark">PCIe</span><span><strong>PCIe Explorer</strong><small>High-speed I/O</small></span><span class="lab-toggle" aria-hidden="true">+</span></summary>
+            <div class="lab-details"><p>Validation coverage across PCIe Gen4, Gen5, and Gen6 on server and accelerator platforms.</p><ul><li>Interface and platform configuration</li><li>Automation with Python and Robot Framework</li><li>Failure analysis during system validation</li></ul></div>
+          </details>
+          <details class="lab-explorer">
+            <summary><span class="lab-mark">DDR</span><span><strong>Memory Explorer</strong><small>DDR and HBM</small></span><span class="lab-toggle" aria-hidden="true">+</span></summary>
+            <div class="lab-details"><p>Memory validation spanning DDR4/DDR5 and HBM, from controller and PHY behavior to margin and stress testing.</p><ul><li>Memory training and configuration</li><li>Stress and margin test coverage</li><li>Server and accelerator memory domains</li></ul></div>
+          </details>
+          <details class="lab-explorer">
+            <summary><span class="lab-mark">SR</span><span><strong>SR-IOV Explorer</strong><small>Virtualization and firmware</small></span><span class="lab-toggle" aria-hidden="true">+</span></summary>
+            <div class="lab-details"><p>Accelerator validation involving SR-IOV PF/VF/VM configurations and secure firmware workflows.</p><ul><li>Physical and virtual function configurations</li><li>Virtual-machine enablement scenarios</li><li>Firmware and subsystem validation</li></ul></div>
+          </details>
+        </div>
+      </div>
+    </section>
+
+    <section class="section section-debug" id="debug" aria-labelledby="debug-title">
+      <div class="container">
+        <div class="section-heading section-heading-row">
+          <div>
+            <p class="eyebrow"><span class="section-index">08</span> A systematic approach</p>
+            <h2 id="debug-title">Debugging <span class="text-gradient">workflow.</span></h2>
+          </div>
+          <p class="section-aside">A concise view of the investigation methods and tools used in platform validation.</p>
+        </div>
+        <ol class="debug-grid">
+          <li><span>01 / REPRODUCE</span><h3>Make it repeatable</h3><p>Capture the failing configuration and the steps that trigger the issue.</p></li>
+          <li><span>02 / COLLECT</span><h3>Gather evidence</h3><p>Review logs and traces alongside platform behavior.</p></li>
+          <li><span>03 / ISOLATE</span><h3>Trace the failure</h3><p>Use JTAG, ITP, and logic analyzers to narrow the problem area.</p></li>
+          <li><span>04 / VERIFY</span><h3>Prove the fix</h3><p>Rerun the focused test and regression coverage on the target setup.</p></li>
+        </ol>
+      </div>
+    </section>
+
+    {% if naukri_enabled %}
+    <section class="section section-todo" aria-labelledby="todo-title">
+      <div class="container todo-preview">
+        <div class="section-heading">
+          <p class="eyebrow"><span class="section-index">09</span> Naukri profile maintenance</p>
+          <h2 id="todo-title">Naukri Resume<br><span class="text-gradient">Updater.</span></h2>
+        </div>
+        <article class="todo-card">
+          <div class="todo-card-icon" aria-hidden="true">↗</div>
+          <div class="todo-card-copy">
+            <p class="todo-label">Naukri profile · Resume updater</p>
+            <h3>Update my resume on Naukri</h3>
+            <p>Use the existing Naukri automation for your Aamir profile, with the resume currently available from this portfolio.</p>
+            <span class="todo-schedule"><span class="status-dot"></span> {{ naukri_status.status | replace("-", " ") | title }}{% if naukri_status.finished_at %} · Last run {{ naukri_status.finished_at }}{% endif %}</span>
+          </div>
+          <div class="todo-card-actions">
+            <a class="button button-primary" href="{{ url_for('todos') }}">Open Naukri Resume Updater <span aria-hidden="true">↗</span></a>
+            <a class="todo-profile-link" href="https://www.naukri.com/mnjuser/homepage" target="_blank" rel="noopener noreferrer">Naukri profile <span aria-hidden="true">↗</span></a>
+          </div>
+        </article>
+      </div>
+    </section>
+    {% endif %}
+
+    <section class="contact-section" id="contact" aria-labelledby="contact-title">
+      <div class="container contact-inner">
+        <div>
+          <p class="eyebrow"><span class="section-index">10</span> Have a good one in mind?</p>
+          <h2 id="contact-title">Let's make it<br><span class="text-gradient">happen.</span></h2>
+        </div>
+        <div class="contact-copy">
+          <p>For engineering opportunities and collaborations, reach me by email, phone, or LinkedIn.</p>
+          <a class="button button-primary contact-button" href="mailto:{{ profile.email }}">{{ profile.email }} <span aria-hidden="true">↗</span></a>
+          <div class="contact-links">
+            <a href="tel:{{ profile.phone_link }}">{{ profile.phone }}</a>
+            <a href="{{ profile.linkedin_url }}" target="_blank" rel="noopener noreferrer">LinkedIn <span aria-hidden="true">↗</span></a>
+          </div>
+          <p class="contact-location"><span class="status-dot"></span> Based in {{ profile.location }}</p>
+        </div>
+        <span class="contact-decoration" aria-hidden="true">✳</span>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <div class="container footer-inner">
+      <a class="wordmark footer-wordmark" href="#home"><span>{{ profile.name }}</span></a>
+      <p>Designed with care. Built with Python.</p>
+      <a class="back-to-top" href="#home">Back to top <span aria-hidden="true">↑</span></a>
+      {% if config["ENABLE_RESUME_UPLOADS"] %}<a class="resume-admin-link" href="{{ url_for('upload_resume') }}">Update resume</a>{% endif %}
+      <span class="copyright">© <span id="current-year"></span></span>
+    </div>
+  </footer>
+</body>
+</html>

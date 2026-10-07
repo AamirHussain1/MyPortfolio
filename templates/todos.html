@@ -1,0 +1,54 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Naukri Resume Updater | Aamir Hussain</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="wordmark" href="{{ url_for('home') }}"><span>Aamir Hussain</span></a>
+      <a class="nav-contact" href="{{ url_for('home') }}">Back to portfolio <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+  <main class="todos-page container" id="main">
+    <div class="todos-heading">
+      <p class="eyebrow"><span class="section-index">NAUKRI PROFILE</span> Resume automation</p>
+      <h1>Naukri Resume <span class="text-gradient">Updater.</span></h1>
+      <p>Manage and monitor your scheduled resume update for your Naukri profile.</p>
+    </div>
+    <article class="todo-detail-card">
+      <div class="todo-detail-top">
+        <div>
+          <p class="todo-label">Naukri · Resume maintenance</p>
+          <h2>Update my Naukri resume</h2>
+        </div>
+        <span class="todo-state todo-state-{{ status.status }}">{{ status.status | replace("-", " ") | title }}</span>
+      </div>
+      <p class="todo-detail-description">Runs the existing Selenium updater in Aamir-only mode and uses the active portfolio resume. You can start a run now or schedule one daily between 8:15 and 8:30 AM local time.</p>
+      <div class="todo-status-panel">
+        <span class="status-dot"></span>
+        <div>
+          <strong>{{ status.message }}</strong>
+          {% if status.started_at %}<p>Started: {{ status.started_at }}</p>{% endif %}
+          {% if status.finished_at %}<p>Finished: {{ status.finished_at }}</p>{% endif %}
+          {% if status.exit_code is defined %}<p>Updater exit code: {{ status.exit_code }}</p>{% endif %}
+        </div>
+      </div>
+      <div class="todo-setup-row">
+        <span>Automatic schedule</span>
+        <strong>{% if schedule_enabled %}Enabled · daily, 8:15–8:30 AM{% else %}Not enabled{% endif %}</strong>
+      </div>
+      <div class="todo-detail-actions">
+        <a class="button button-quiet" href="{{ profile_url }}" target="_blank" rel="noopener noreferrer">Open Naukri profile <span aria-hidden="true">↗</span></a>
+        <a class="button button-quiet" href="{{ url_for('manage_naukri_todo') }}">Manage schedule <span aria-hidden="true">→</span></a>
+      </div>
+      <p class="todo-caveat">Scheduled runs need this Windows account to be signed in and the computer awake. Naukri may require additional verification, and a completed script run should be confirmed on the profile.</p>
+    </article>
+  </main>
+</body>
+</html>
