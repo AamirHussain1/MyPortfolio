@@ -39,9 +39,9 @@ The repository includes `render.yaml` for a free Render web service. Render's fr
 To publish:
 
 1. Push this project to a GitHub repository connected to your Render account. This portfolio's current `AamirHussain1/MyPortfolio` repository is public: its source and the resume PDF in `static/resume/` are publicly visible/downloadable. Keep `.venv/`, `instance/`, and `__pycache__/` out of the repository; `.gitignore` already excludes them. Do not commit passwords or Naukri credentials.
-2. In Render, choose **New > Blueprint**, connect the GitHub repository, and deploy the `render.yaml` blueprint. The file selects Render's free web-service plan and runs Flask with Gunicorn.
+2. In Render, choose **New > Blueprint**, enter the public repository URL, and deploy the `render.yaml` blueprint. The file selects Render's free web-service plan and runs Flask with Gunicorn. Connecting Render's GitHub integration instead enables repository-linked deployment features; using the public URL alone does not enable automatic deploys.
 3. Wait for the first deploy to finish, then open the `onrender.com` URL shown in the Render dashboard. The first request after the service has been idle may take about a minute while the free service starts.
-4. Verify the homepage, LinkedIn link, and `/resume` download. The resume-upload and Naukri automation routes are intentionally unavailable on the hosted copy; those workflows remain local.
+4. Verify the homepage, LinkedIn link, and `/resume` download. The resume-upload and Naukri automation routes are intentionally unavailable on the hosted copy; those workflows remain local. With a public repository URL, manually sync the Blueprint and deploy after pushing changes.
 
 Render free services have usage limits and ephemeral storage. Do not enable public resume uploads unless you configure durable storage and a strong `PORTFOLIO_ADMIN_PASSWORD` first.
 
