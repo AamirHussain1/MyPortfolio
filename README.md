@@ -32,6 +32,12 @@ Use that password and a PDF file (up to 10 MB) to replace the active resume. The
 
 For a hosted site, configure a strong `PORTFOLIO_ADMIN_PASSWORD` environment variable in the hosting provider before enabling uploads. Use HTTPS for the public site, and do not commit or share the admin password. Some free hosting plans use temporary storage; an uploaded replacement can be lost when the service redeploys unless persistent storage is configured.
 
+## Project management
+
+On the local Windows portfolio, use **Add a project** in the selected-work section to open the password-protected project manager. It uses the same admin password as resume updates, validates project details and optional HTTP(S) links, and lets you remove projects you added. The built-in featured projects are kept separately. Added projects are stored in `instance/projects.json`, which is excluded from Git.
+
+Project management is disabled by default on non-Windows systems and explicitly disabled in the Render Blueprint. Do not enable it on a hosted service unless you first configure a strong `PORTFOLIO_ADMIN_PASSWORD` and durable storage; Render's free filesystem is temporary.
+
 ## Free public hosting (Render)
 
 The repository includes `render.yaml` for the `aamirhussain.onrender.com` free Render web service. Render's free service can spin down when idle and its filesystem is temporary, so the hosted configuration disables resume uploads and the Windows-only Naukri updater. Visitors can still download the original resume included in `static/resume/`. Continue to use the local Windows launcher for resume uploads and Naukri automation.
@@ -41,7 +47,7 @@ To publish:
 1. Push this project to a GitHub repository connected to your Render account. This portfolio's current `AamirHussain1/MyPortfolio` repository is public: its source and the resume PDF in `static/resume/` are publicly visible/downloadable. Keep `.venv/`, `instance/`, and `__pycache__/` out of the repository; `.gitignore` already excludes them. Do not commit passwords or Naukri credentials.
 2. In Render, choose **New > Blueprint**, enter the public repository URL, and deploy the `render.yaml` blueprint. The file selects Render's free web-service plan and runs Flask with Gunicorn. Connecting Render's GitHub integration instead enables repository-linked deployment features; using the public URL alone does not enable automatic deploys.
 3. Wait for the first deploy to finish, then open the `onrender.com` URL shown in the Render dashboard. The first request after the service has been idle may take about a minute while the free service starts.
-4. Verify the homepage, LinkedIn link, and `/resume` download. The resume-upload and Naukri automation routes are intentionally unavailable on the hosted copy; those workflows remain local. With a public repository URL, manually sync the Blueprint and deploy after pushing changes.
+4. Verify the homepage, LinkedIn link, and `/resume` download. Resume uploads, project management, and Naukri automation are intentionally unavailable on the hosted copy; those workflows remain local. With a public repository URL, manually sync the Blueprint and deploy after pushing changes.
 
 Render free services have usage limits and ephemeral storage. Do not enable public resume uploads unless you configure durable storage and a strong `PORTFOLIO_ADMIN_PASSWORD` first.
 

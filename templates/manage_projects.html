@@ -1,0 +1,79 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#0b1020">
+  <title>Manage projects | Aamir Hussain</title>
+  <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+  <header class="site-header">
+    <nav class="nav container" aria-label="Main navigation">
+      <a class="wordmark" href="{{ url_for('home') }}"><span>Aamir Hussain</span></a>
+      <a class="nav-contact" href="{{ url_for('home') }}#work">Back to projects <span aria-hidden="true">↗</span></a>
+    </nav>
+  </header>
+  <main class="upload-page container" id="main">
+    <div class="project-manager">
+      <section class="upload-card" aria-labelledby="projects-title">
+        <p class="eyebrow"><span class="section-index">PROJECTS</span> Owner tools</p>
+        <h1 id="projects-title">Add a <span class="text-gradient">project.</span></h1>
+        <p class="upload-intro">Add a project card to the portfolio. Enter technologies separated by commas. Project links are optional.</p>
+        {% if message %}
+        <p class="upload-message upload-message-{{ message_type }}" role="status">{{ message }}</p>
+        {% endif %}
+        <form class="upload-form" method="post">
+          <input type="hidden" name="action" value="add">
+          <label for="project-title">Project title</label>
+          <input id="project-title" name="title" type="text" maxlength="100" required>
+          <label for="project-label">Category</label>
+          <input id="project-label" name="label" type="text" maxlength="60" placeholder="For example, Automation" required>
+          <label for="project-description">Description</label>
+          <textarea id="project-description" name="description" maxlength="1200" rows="4" required></textarea>
+          <label for="project-tags">Technologies</label>
+          <input id="project-tags" name="tags" type="text" maxlength="300" placeholder="Python, Flask, PostgreSQL" required>
+          <label for="project-link">Project URL (optional)</label>
+          <input id="project-link" name="link" type="url" maxlength="500" placeholder="https://example.com">
+          <label for="admin-password">Admin password</label>
+          <input id="admin-password" name="password" type="password" autocomplete="current-password" required>
+          <button class="button button-primary" type="submit">Add project <span aria-hidden="true">＋</span></button>
+        </form>
+        <p class="upload-help">Use the same admin password as the resume updater. Projects are stored in the local <code>instance/projects.json</code> file and are excluded from Git.</p>
+      </section>
+
+      <section class="managed-projects" aria-labelledby="managed-projects-title">
+        <div class="section-heading">
+          <p class="eyebrow"><span class="section-index">PORTFOLIO</span> Added projects</p>
+          <h2 id="managed-projects-title">Your project <span class="text-gradient">list.</span></h2>
+          <p class="upload-intro">The original featured projects are kept separately and cannot be removed here.</p>
+        </div>
+        {% if projects %}
+        <div class="managed-project-list">
+          {% for project in projects %}
+          <article class="managed-project">
+            <div>
+              <p class="todo-label">{{ project.label }}</p>
+              <h3>{{ project.title }}</h3>
+              <p>{{ project.description }}</p>
+              <div class="tag-list">{% for tag in project.tags %}<span>{{ tag }}</span>{% endfor %}</div>
+            </div>
+            <form method="post">
+              <input type="hidden" name="action" value="delete">
+              <input type="hidden" name="project_id" value="{{ project.id }}">
+              <label class="sr-only" for="delete-password-{{ loop.index }}">Admin password to remove {{ project.title }}</label>
+              <input id="delete-password-{{ loop.index }}" name="password" type="password" autocomplete="current-password" placeholder="Admin password" required>
+              <button class="button button-quiet" type="submit">Remove</button>
+            </form>
+          </article>
+          {% endfor %}
+        </div>
+        {% else %}
+        <p class="managed-project-empty">No additional projects yet. Your existing featured projects remain on the portfolio.</p>
+        {% endif %}
+      </section>
+    </div>
+  </main>
+</body>
+</html>

@@ -1,3 +1,4 @@
+import json
 import unittest
 from io import BytesIO
 from pathlib import Path
@@ -13,24 +14,30 @@ class PortfolioPageTests(unittest.TestCase):
         app.config["ADMIN_PASSWORD"] = "test-only-password"
         self.original_resume_upload_setting = app.config["ENABLE_RESUME_UPLOADS"]
         self.original_naukri_setting = app.config["ENABLE_NAUKRI_AUTOMATION"]
+        self.original_project_management_setting = app.config["ENABLE_PROJECT_MANAGEMENT"]
         app.config["ENABLE_RESUME_UPLOADS"] = True
         app.config["ENABLE_NAUKRI_AUTOMATION"] = True
+        app.config["ENABLE_PROJECT_MANAGEMENT"] = True
         self.resume_directory = TemporaryDirectory()
         self.original_updated_resume_path = app.config["UPDATED_RESUME_PATH"]
         self.original_admin_password_path = app.config["ADMIN_PASSWORD_PATH"]
         self.original_naukri_status_path = app.config["NAUKRI_STATUS_PATH"]
+        self.original_added_projects_path = app.config["ADDED_PROJECTS_PATH"]
         app.config["UPDATED_RESUME_PATH"] = Path(self.resume_directory.name) / "resume.pdf"
         app.config["ADMIN_PASSWORD_PATH"] = Path(self.resume_directory.name) / "admin-password.txt"
         app.config["NAUKRI_STATUS_PATH"] = Path(self.resume_directory.name) / "naukri-status.json"
+        app.config["ADDED_PROJECTS_PATH"] = Path(self.resume_directory.name) / "projects.json"
         self.client = app.test_client()
 
     def tearDown(self):
         app.config.pop("ADMIN_PASSWORD", None)
         app.config["ENABLE_RESUME_UPLOADS"] = self.original_resume_upload_setting
         app.config["ENABLE_NAUKRI_AUTOMATION"] = self.original_naukri_setting
+        app.config["ENABLE_PROJECT_MANAGEMENT"] = self.original_project_management_setting
         app.config["UPDATED_RESUME_PATH"] = self.original_updated_resume_path
         app.config["ADMIN_PASSWORD_PATH"] = self.original_admin_password_path
         app.config["NAUKRI_STATUS_PATH"] = self.original_naukri_status_path
+        app.config["ADDED_PROJECTS_PATH"] = self.original_added_projects_path
         self.resume_directory.cleanup()
 
     def test_home_page_renders_portfolio_sections(self):
@@ -82,19 +89,101 @@ class PortfolioPageTests(unittest.TestCase):
     def test_hosted_local_only_features_can_be_disabled(self):
         original_upload_setting = app.config["ENABLE_RESUME_UPLOADS"]
         original_naukri_setting = app.config["ENABLE_NAUKRI_AUTOMATION"]
+        original_project_setting = app.config["ENABLE_PROJECT_MANAGEMENT"]
         app.config["ENABLE_RESUME_UPLOADS"] = False
         app.config["ENABLE_NAUKRI_AUTOMATION"] = False
+        app.config["ENABLE_PROJECT_MANAGEMENT"] = False
         try:
             home_response = self.client.get("/")
             self.assertEqual(home_response.status_code, 200)
             self.assertNotIn("Naukri Resume Updater", home_response.get_data(as_text=True))
             self.assertNotIn("Update resume", home_response.get_data(as_text=True))
             self.assertEqual(self.client.get("/resume/upload").status_code, 404)
+            self.assertEqual(self.client.get("/projects/manage").status_code, 404)
             self.assertEqual(self.client.get("/todos").status_code, 404)
             self.assertEqual(self.client.get("/todos/naukri").status_code, 404)
         finally:
             app.config["ENABLE_RESUME_UPLOADS"] = original_upload_setting
             app.config["ENABLE_NAUKRI_AUTOMATION"] = original_naukri_setting
+            app.config["ENABLE_PROJECT_MANAGEMENT"] = original_project_setting
+
+    def test_project_manager_requires_admin_password(self):
+        response = self.client.post(
+            "/projects/manage",
+            data={"action": "add", "password": "incorrect"},
+        )
+
+        self.assertEqual(response.status_code, 403)
+        self.assertFalse(Path(app.config["ADDED_PROJECTS_PATH"]).exists())
+
+    def test_project_can_be_added_persisted_and_shown_on_homepage(self):
+        response = self.client.post(
+            "/projects/manage",
+            data={
+                "action": "add",
+                "password": "test-only-password",
+                "title": "Portfolio dashboard",
+                "label": "Web application",
+                "description": "A dashboard built with Flask.",
+                "tags": "Python, Flask",
+                "link": "https://example.com/project",
+            },
+        )
+
+        self.assertEqual(response.status_code, 302)
+        self.assertIn("/projects/manage?added=1", response.location)
+        page = self.client.get("/").get_data(as_text=True)
+        self.assertIn("Portfolio dashboard", page)
+        self.assertIn("Python", page)
+        self.assertIn('href="https://example.com/project"', page)
+        self.assertIn('class="project-number">03</span>', page)
+        stored = Path(app.config["ADDED_PROJECTS_PATH"]).read_text(encoding="utf-8")
+        self.assertIn("Portfolio dashboard", stored)
+
+    def test_project_manager_rejects_invalid_project_link(self):
+        response = self.client.post(
+            "/projects/manage",
+            data={
+                "action": "add",
+                "password": "test-only-password",
+                "title": "Unsafe link",
+                "label": "Web application",
+                "description": "A project description.",
+                "tags": "Python",
+                "link": "javascript:alert(1)",
+            },
+        )
+
+        self.assertEqual(response.status_code, 400)
+        self.assertIn("valid HTTPS or HTTP URL", response.get_data(as_text=True))
+        self.assertFalse(Path(app.config["ADDED_PROJECTS_PATH"]).exists())
+
+    def test_added_project_can_be_removed(self):
+        response = self.client.post(
+            "/projects/manage",
+            data={
+                "action": "add",
+                "password": "test-only-password",
+                "title": "Temporary project",
+                "label": "Test",
+                "description": "A temporary entry.",
+                "tags": "Python",
+            },
+        )
+        self.assertEqual(response.status_code, 302)
+        projects_path = Path(app.config["ADDED_PROJECTS_PATH"])
+        project = json.loads(projects_path.read_text(encoding="utf-8"))[0]
+        removed = self.client.post(
+            "/projects/manage",
+            data={
+                "action": "delete",
+                "password": "test-only-password",
+                "project_id": project["id"],
+            },
+        )
+
+        self.assertEqual(removed.status_code, 302)
+        self.assertEqual(projects_path.read_text(encoding="utf-8").strip(), "[]")
 
     def test_naukri_resume_updater_page_renders_update_card(self):
                 response = self.client.get("/todos")

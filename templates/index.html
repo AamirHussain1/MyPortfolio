@@ -165,7 +165,10 @@
             <p class="eyebrow"><span class="section-index">05</span> Selected platform work</p>
             <h2 id="work-title">Platforms I've <span class="text-gradient">validated.</span></h2>
           </div>
-          <p class="section-aside">Validation and automation across next-generation AI accelerators and Intel Xeon servers.</p>
+          <div class="projects-tools">
+            <p class="section-aside">Validation and automation across next-generation AI accelerators and Intel Xeon servers.</p>
+            {% if project_management_enabled %}<a class="projects-admin-link" href="{{ url_for('manage_projects') }}">Add a project <span aria-hidden="true">＋</span></a>{% endif %}
+          </div>
         </div>
         <div class="projects-grid">
           {% for project in projects %}
@@ -183,6 +186,7 @@
             <h3>{{ project.title }}</h3>
             <p class="project-description">{{ project.description }}</p>
             <div class="tag-list">{% for tag in project.tags %}<span>{{ tag }}</span>{% endfor %}</div>
+            {% if project.link %}<a class="project-link" href="{{ project.link }}" target="_blank" rel="noopener noreferrer">View project <span aria-hidden="true">↗</span></a>{% endif %}
           </article>
           {% endfor %}
         </div>
@@ -303,6 +307,7 @@
       <p>Designed with care. Built with Python.</p>
       <a class="back-to-top" href="#home">Back to top <span aria-hidden="true">↑</span></a>
       {% if config["ENABLE_RESUME_UPLOADS"] %}<a class="resume-admin-link" href="{{ url_for('upload_resume') }}">Update resume</a>{% endif %}
+      {% if project_management_enabled %}<a class="resume-admin-link" href="{{ url_for('manage_projects') }}">Add project</a>{% endif %}
       <span class="copyright">© <span id="current-year"></span></span>
     </div>
   </footer>

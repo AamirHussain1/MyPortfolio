@@ -6,6 +6,7 @@ import subprocess
 import sys
 import tempfile
 from pathlib import Path
+from urllib.parse import urlsplit
 
 from flask import (
     Flask,
@@ -31,6 +32,12 @@ app.config["ENABLE_RESUME_UPLOADS"] = is_enabled_environment_value(
 app.config["ENABLE_NAUKRI_AUTOMATION"] = is_enabled_environment_value(
     os.environ.get(
         "PORTFOLIO_ENABLE_NAUKRI_AUTOMATION",
+        "true" if os.name == "nt" else "false",
+    )
+)
+app.config["ENABLE_PROJECT_MANAGEMENT"] = is_enabled_environment_value(
+    os.environ.get(
+        "PORTFOLIO_ENABLE_PROJECT_MANAGEMENT",
         "true" if os.name == "nt" else "false",
     )
 )
@@ -155,6 +162,7 @@ EDUCATION = {
 RESUME_NAME = "Aamir_Hussain_Resume.pdf"
 RESUME_PATH = Path(app.root_path) / "static" / "resume" / RESUME_NAME
 UPDATED_RESUME_PATH = Path(app.instance_path) / "resume.pdf"
+ADDED_PROJECTS_PATH = Path(app.instance_path) / "projects.json"
 ADMIN_PASSWORD_PATH = Path(app.instance_path) / "resume_admin_password.txt"
 NAUKRI_STATUS_PATH = Path(app.instance_path) / "naukri_status.json"
 NAUKRI_RUNNER_PATH = Path(app.root_path) / "naukri_task.py"
@@ -162,6 +170,7 @@ NAUKRI_TASK_NAME = "AamirPortfolioNaukriResumeUpdate"
 NAUKRI_PROFILE_URL = "https://www.naukri.com/mnjuser/homepage"
 app.config["RESUME_PATH"] = RESUME_PATH
 app.config["UPDATED_RESUME_PATH"] = UPDATED_RESUME_PATH
+app.config["ADDED_PROJECTS_PATH"] = ADDED_PROJECTS_PATH
 app.config["ADMIN_PASSWORD_PATH"] = ADMIN_PASSWORD_PATH
 app.config["NAUKRI_STATUS_PATH"] = NAUKRI_STATUS_PATH
 app.config["NAUKRI_RUNNER_PATH"] = NAUKRI_RUNNER_PATH
@@ -182,6 +191,76 @@ def get_admin_password():
     except FileExistsError:
         pass
     return password_path.read_text(encoding="utf-8").strip()
+
+
+def read_added_projects():
+    projects_path = Path(app.config["ADDED_PROJECTS_PATH"])
+    if not projects_path.is_file():
+        return []
+
+    projects = json.loads(projects_path.read_text(encoding="utf-8"))
+    if not isinstance(projects, list) or any(
+        not isinstance(project, dict) for project in projects
+    ):
+        raise ValueError(f"Project data has an invalid format: {projects_path}")
+    return projects
+
+
+def write_added_projects(projects):
+    projects_path = Path(app.config["ADDED_PROJECTS_PATH"])
+    projects_path.parent.mkdir(parents=True, exist_ok=True)
+    temporary_path = None
+    try:
+        with tempfile.NamedTemporaryFile(
+            mode="w",
+            encoding="utf-8",
+            dir=projects_path.parent,
+            prefix="projects-",
+            suffix=".tmp",
+            delete=False,
+        ) as temporary_file:
+            temporary_path = Path(temporary_file.name)
+            json.dump(projects, temporary_file, ensure_ascii=False, indent=2)
+            temporary_file.write("\n")
+        os.replace(temporary_path, projects_path)
+    finally:
+        if temporary_path is not None:
+            temporary_path.unlink(missing_ok=True)
+
+
+def project_form_error(form):
+    title = form.get("title", "").strip()
+    label = form.get("label", "").strip()
+    description = form.get("description", "").strip()
+    tags = [tag.strip() for tag in form.get("tags", "").split(",") if tag.strip()]
+    link = form.get("link", "").strip()
+
+    if not title or len(title) > 100:
+        return None, "Project title is required and must be 100 characters or fewer."
+    if not label or len(label) > 60:
+        return None, "Project category is required and must be 60 characters or fewer."
+    if not description or len(description) > 1200:
+        return None, "Description is required and must be 1,200 characters or fewer."
+    if not tags or len(tags) > 8 or any(len(tag) > 32 for tag in tags):
+        return None, "Add between 1 and 8 technologies, each 32 characters or fewer."
+    if len(set(tag.casefold() for tag in tags)) != len(tags):
+        return None, "Remove duplicate technologies from the project tags."
+    if link:
+        try:
+            parsed_link = urlsplit(link)
+        except ValueError:
+            return None, "Project link must be a valid HTTPS or HTTP URL."
+        if parsed_link.scheme not in {"http", "https"} or not parsed_link.netloc:
+            return None, "Project link must be a valid HTTPS or HTTP URL."
+
+    return {
+        "id": secrets.token_urlsafe(9),
+        "title": title,
+        "label": label,
+        "description": description,
+        "tags": tags,
+        "link": link,
+    }, None
 
 
 def read_naukri_status():
@@ -275,9 +354,10 @@ def home():
         validation_areas=VALIDATION_AREAS,
         naukri_status=read_naukri_status(),
         experience=EXPERIENCE,
-        projects=PROJECTS,
+        projects=PROJECTS + read_added_projects(),
         education=EDUCATION,
         naukri_enabled=app.config["ENABLE_NAUKRI_AUTOMATION"],
+        project_management_enabled=app.config["ENABLE_PROJECT_MANAGEMENT"],
     )
 
 
@@ -364,6 +444,73 @@ def upload_resume():
             temporary_path.unlink(missing_ok=True)
 
     return redirect(url_for("upload_resume", updated="1"))
+
+
+@app.route("/projects/manage", methods=["GET", "POST"])
+def manage_projects():
+    if not app.config["ENABLE_PROJECT_MANAGEMENT"]:
+        abort(404)
+
+    if request.method == "GET":
+        get_admin_password()
+        message = None
+        if request.args.get("added") == "1":
+            message = "Project added to your portfolio."
+        elif request.args.get("deleted") == "1":
+            message = "Project removed from your portfolio."
+        return render_template(
+            "manage_projects.html",
+            projects=read_added_projects(),
+            message=message,
+            message_type="success" if message else None,
+        )
+
+    submitted_password = request.form.get("password", "")
+    if not hmac.compare_digest(submitted_password, get_admin_password()):
+        return render_template(
+            "manage_projects.html",
+            projects=read_added_projects(),
+            message="The admin password is incorrect.",
+            message_type="error",
+        ), 403
+
+    projects = read_added_projects()
+    action = request.form.get("action")
+    if action == "add":
+        project, error = project_form_error(request.form)
+        if error:
+            return render_template(
+                "manage_projects.html",
+                projects=projects,
+                message=error,
+                message_type="error",
+            ), 400
+        project["number"] = f"{len(PROJECTS) + len(projects) + 1:02}"
+        projects.append(project)
+        write_added_projects(projects)
+        return redirect(url_for("manage_projects", added="1"))
+
+    if action == "delete":
+        project_id = request.form.get("project_id", "")
+        remaining_projects = [
+            project for project in projects if project.get("id") != project_id
+        ]
+        if len(remaining_projects) == len(projects):
+            return render_template(
+                "manage_projects.html",
+                projects=projects,
+                message="That project could not be found.",
+                message_type="error",
+            ), 404
+        write_added_projects(remaining_projects)
+        return redirect(url_for("manage_projects", deleted="1"))
+
+    return render_template(
+        "manage_projects.html",
+        projects=projects,
+        message="Choose a valid project action.",
+        message_type="error",
+    ), 400
 
 
 @app.get("/todos")

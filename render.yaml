@@ -10,3 +10,5 @@ services:
         value: "false"
       - key: PORTFOLIO_ENABLE_NAUKRI_AUTOMATION
         value: "false"
+      - key: PORTFOLIO_ENABLE_PROJECT_MANAGEMENT
+        value: "false"
